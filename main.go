@@ -19,10 +19,12 @@ import (
 )
 
 func main() {
+	// args
 	csvFilename := flag.String("csv", "problems.csv", "a csv file in the format of 'question, answer'")
 	timeLimit := flag.Int("limit", 30, "the time limit for the quiz in seconds")
 	flag.Parse()
 
+	// file
 	file, err := os.Open(*csvFilename) // note this is a pointer to the csvFilename string
 	if err != nil {
 		exit(fmt.Sprintf("Failed to open the CSV file: %s\n", *csvFilename))
@@ -42,21 +44,33 @@ func main() {
 	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
 	// <-timer.C // waits until the program gets a message from this channel
 
+	// quiz output and timing
 	correct := 0
 	for i, p := range problems {
-		select {
-		case <-timer.C:
-			fmt.Printf("You scored %d out of %d.\n", correct, len(problems))
-			return
-		default:
-			fmt.Printf("Problem #%d: %s = ", i+1, p.q)
+		fmt.Printf("Problem #%d: %s = ", i+1, p.q) // moved question to start of for loop to not be counted in time
+
+		// goroutine and answer channel
+		answerCh := make(chan string) // get answer back from routine
+		go func() {
 			var answer string
 			fmt.Scanf("%s\n", &answer) // this will not work if answers are multiple word strings
+			answerCh <- answer         // sends answer into channel (arrow points where data is moving)
+		}() // () states we are calling the function
+
+		// look for answer and increment count if correct
+		// if we get something from timer chan, print score and exit
+		select {
+		case <-timer.C:
+			fmt.Printf("\nTimes up!\nYou scored %d out of %d.\n", correct, len(problems))
+			return
+		case answer := <-answerCh:
 			if answer == p.a {
 				correct++
 			}
 		}
 	}
+
+	fmt.Printf("\nYou scored %d out of %d.\n", correct, len(problems))
 }
 
 //might want to make a validator for the csv, but not needed for this exercise
