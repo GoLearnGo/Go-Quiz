@@ -12,8 +12,13 @@ func main() {
 
 	file, err := os.Open(*csvFilename) // note this is a pointer to the csvFilename string
 	if err != nil {
-		fmt.Printf("Failed to open the CSV file: %s\n", *csvFilename)
+		exit(fmt.Sprintf("Failed to open the CSV file: %s\n", *csvFilename))
 		os.Exit(1)
 	}
 	_ = file
+}
+
+func exit(msg string) {
+	fmt.Println(msg)
+	os.Exit(1)
 }
