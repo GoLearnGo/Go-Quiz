@@ -15,10 +15,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
 	csvFilename := flag.String("csv", "problems.csv", "a csv file in the format of 'question, answer'")
+	timeLimit := flag.Int("limit", 30, "the time limit for the quiz in seconds")
 	flag.Parse()
 
 	file, err := os.Open(*csvFilename) // note this is a pointer to the csvFilename string
@@ -36,17 +38,25 @@ func main() {
 
 	problems := parseLines(lines)
 
+	// placing timer here so that program setup doesn't count against the player's time
+	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
+	// <-timer.C // waits until the program gets a message from this channel
+
 	correct := 0
 	for i, p := range problems {
-		fmt.Printf("Problem #%d: %s = \n", i+1, p.q)
-		var answer string
-		fmt.Scanf("%s\n", &answer) // this will not work if answers are multiple word strings
-		if answer == p.a {
-			correct++
+		select {
+		case <-timer.C:
+			fmt.Printf("You scored %d out of %d.\n", correct, len(problems))
+			return
+		default:
+			fmt.Printf("Problem #%d: %s = ", i+1, p.q)
+			var answer string
+			fmt.Scanf("%s\n", &answer) // this will not work if answers are multiple word strings
+			if answer == p.a {
+				correct++
+			}
 		}
 	}
-
-	fmt.Printf("You scored %d out of %d.\n", correct, len(problems))
 }
 
 //might want to make a validator for the csv, but not needed for this exercise
