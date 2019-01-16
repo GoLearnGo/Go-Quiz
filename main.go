@@ -28,6 +28,11 @@ func main() {
 
 	for i, p := range problems {
 		fmt.Printf("Problem #%d: %s = \n", i+1, p.q)
+		var answer string
+		fmt.Scanf("%s\n", &answer) // this will not work if answers are multiple word strings
+		if answer == p.a {
+			fmt.Println("Correct")
+		}
 	}
 }
 
