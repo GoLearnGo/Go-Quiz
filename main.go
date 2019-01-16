@@ -1,3 +1,12 @@
+/******************************************************************************
+Go Timed Quiz
+	Create a simple, timed quiz to practice programming in Go
+
+Author: Jason Flinn
+OG Author: Gophercises
+Date: 1/15/19
+******************************************************************************/
+
 package main
 
 import (
@@ -40,6 +49,7 @@ func main() {
 	fmt.Printf("You scored %d out of %d.\n", correct, len(problems))
 }
 
+//might want to make a validator for the csv, but not needed for this exercise
 func parseLines(lines [][]string) []problem {
 	ret := make([]problem, len(lines)) // assume every line is a problem
 	for i, line := range lines {
